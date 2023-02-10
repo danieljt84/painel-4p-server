@@ -44,16 +44,21 @@ public class BookController {
 	
 	@PostMapping()
 	public ResponseEntity generateBookPhotos(@RequestParam(name = "initialDate",required = false) String initialDate,@RequestParam  String finalDate
-			,@RequestParam long idBrand, @RequestBody(required = false)  FilterForm filter) {
+			,@RequestParam List<Brand> brands, @RequestBody(required = false)  FilterForm filter) {
 		try { 
-		   Brand brand = brandService.getBrandById(idBrand);
+			List<Long> idBrands=new ArrayList<>();
+			for (Brand itemBrands: brands) {
+		   idBrands.add(itemBrands.getId());
+			}
 		   List<Object[]> datas;
 		   List<DataBook> datasBook = new ArrayList<>();
 		   
-		   if(filter!=null) {
-	            datas = dataFileService.getPhotosToBook(LocalDate.parse(initialDate), LocalDate.parse(finalDate), idBrand, filter.getFilter()).stream().map(element -> ((Object[]) element)).collect(Collectors.toList());
-		   }else {
-			   datas = dataFileService.getPhotosToBook(LocalDate.parse(initialDate), LocalDate.parse(finalDate), idBrand, null).stream().map(element -> ((Object[]) element)).collect(Collectors.toList());
+		   for (Long idBrand: idBrands) {
+			   if(filter!=null) {
+		            datas = dataFileService.getPhotosToBook(LocalDate.parse(initialDate), LocalDate.parse(finalDate), idBrand, filter.getFilter()).stream().map(element -> ((Object[]) element)).collect(Collectors.toList());
+			   }else {
+				   datas = dataFileService.getPhotosToBook(LocalDate.parse(initialDate), LocalDate.parse(finalDate), idBrand, null).stream().map(element -> ((Object[]) element)).collect(Collectors.toList());
+			   }
 		   }
 		   
 		   for(Object[] data :datas) {

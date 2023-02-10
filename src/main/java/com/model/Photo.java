@@ -10,7 +10,7 @@ import javax.persistence.Table;
 @Table(name = "photo")
 public class Photo {
 	
-	@Id@GeneratedValue(strategy = GenerationType.AUTO)
+	@Id@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String section;
 	private String url;

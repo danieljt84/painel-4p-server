@@ -23,7 +23,7 @@ public class TokenService {
 		Map<String,Object> _return = new HashMap();
 		Map<String,Object> claims = new HashMap<>();
         _return.put("token", Jwts.builder().setIssuer("token").setSubject(logged.getId().toString()).setIssuedAt(today)
-				.setExpiration(dateExpiration).signWith(SignatureAlgorithm.HS256, "4pmkt").compact());
+			   .signWith(SignatureAlgorithm.HS256, "agencia4p").compact());
         _return.put("user",logged);
 
 		
@@ -32,7 +32,7 @@ public class TokenService {
 	
 	public boolean isValidToken(String token) {
 		try {
-			Jwts.parser().setSigningKey("4pmkt").parseClaimsJws(token);
+			Jwts.parser().setSigningKey("agencia4p").parseClaimsJws(token);
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -40,7 +40,7 @@ public class TokenService {
 	}
 	
 	public Long getIdUsuario(String token) {
-		Claims body = Jwts.parser().setSigningKey("4pmkt").parseClaimsJws(token).getBody();
+		Claims body = Jwts.parser().setSigningKey("agencia4p").parseClaimsJws(token).getBody();
   		return Long.parseLong(body.getSubject());
 	}
 

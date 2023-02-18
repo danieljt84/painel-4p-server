@@ -13,7 +13,7 @@ public class UserDTO {
 	private Long id;
 	private String username;
 	private String password;
-	private BrandDTO brand;
+	private List<BrandDTO> brand;
 	private String img;
 
 	public Long getId() {
@@ -48,11 +48,11 @@ public class UserDTO {
 		this.password = password;
 	}
 
-	public BrandDTO getBrand() {
+	public List<BrandDTO> getBrand() {
 		return brand;
 	}
 
-	public void setBrand(BrandDTO brand) {
+	public void setBrand(List<BrandDTO> brand) {
 		this.brand = brand;
 	}
 

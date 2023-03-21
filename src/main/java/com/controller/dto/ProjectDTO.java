@@ -5,12 +5,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
 
-public class ShopDTO {
+public class ProjectDTO {
 	
 	private Long id;
 	private String name;
-	private String groupName;
-	
 	public Long getId() {
 		return id;
 	}
@@ -22,12 +20,6 @@ public class ShopDTO {
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	public String getGroupName() {
-		return groupName;
-	}
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
 	}
 	
 	

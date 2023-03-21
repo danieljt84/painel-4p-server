@@ -28,17 +28,11 @@ import org.hibernate.annotations.ParamDef;
 
 @Entity
 @Table(name = "datafile")
-@FilterDef(name="containsShop", parameters={
-		@ParamDef( name="shops", type="string")})
-@Filters({
-	@Filter(name = "containsProject", condition = "project in (:projects)")
-})
 public class DataFile {
 	
 	@Id@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	@ManyToOne
-	@FilterJoinTable(name="containsShop", condition="name in (:shops)")
 	private Shop shop;
 	@OneToMany(cascade=CascadeType.ALL,fetch = FetchType.EAGER)
 	@JoinTable(name="datafile_photos",
@@ -46,6 +40,7 @@ public class DataFile {
      referencedColumnName="id")},
     inverseJoinColumns={@JoinColumn(name="photos_id",
       referencedColumnName="id")})
+	@Fetch(value = FetchMode.SUBSELECT)
 	private List<Photo> photos;
 	@OneToMany(cascade=CascadeType.ALL,fetch = FetchType.EAGER)
 	@Fetch(value = FetchMode.SUBSELECT)
@@ -55,7 +50,7 @@ public class DataFile {
 	private LocalDate data;
 	@ManyToOne
 	private Promoter promoter;
-	@Enumerated(EnumType.STRING)
+	@ManyToOne
 	private Project project;
 	
 	public DataFile() {
@@ -82,36 +77,15 @@ public class DataFile {
 	public void setPhotos(List<Photo> photos) {
 		this.photos = photos;
 	}
-
+	
 	public Project getProject() {
 		return project;
 	}
-	
+
 	public void setProject(Project project) {
 		this.project = project;
 	}
-	
-	//Outro set que recebe uma string 
-	public void setProject(String project) {
-	   switch(project) {
-	   case "Compartilhado Fixo":
-		   this.project = Project.FIXO_RJ;
-		   break;
-	   case "Compartilhado RJ":
-		   this.project = Project.COMPARTILHADO_RJ;
-		   break;
-	   case "Compartilhado SP":
-		   this.project = Project.COMPARTILHADO_SP;
-		   break;
-	   case "Compartilhado BA":
-		   this.project = Project.COMPARTILHADO_BA;
-		   break;
-	   case "Compartilhado ES":
-		   this.project = Project.COMPARTILHADO_ES;
-		   break;
-	   }
-	}
-	
+
 	public Promoter getPromoter() {
 		return promoter;
 	}

@@ -39,99 +39,118 @@ public class DataFileRepositoryImp {
 	DetailRepositoryImp detailRepositoryImp;
 
 	// Funcao que busca apenas datafile com photos
-	public List<Object> findByBrandwithOnlyPhotos(LocalDate initialDate, LocalDate finalDate, long idBrand,
-			Map<String, String[]> filter) {
+	public List<Object> findByBrandwithOnlyPhotos(LocalDate initialDate, LocalDate finalDate, List<Long> idsBrand,
+			FilterForm filter) {
 
-		List<DataFile> datas = new ArrayList<>();
-		Map<String, List<Object>> objects = new HashMap<>();
-
-		String sql = "select distinct  d.id as id_datafile ,b.id as id_brand ,d.shop_id as id_shop ,d.data as date ,d.project as id_project, d.promoter_id as id_promoter\r\n"
-				+ "FROM report.datafile d \r\n"
-				+ "inner join report.datafile_photos dp on dp.datafile_id = d.id \r\n"
-				+ "inner join report.photo p on p.id = dp.photos_id \r\n"
-				+ "inner join operation.brand b on d.brand_id = b.id \r\n"
-				+ "inner join operation.shop s on d.shop_id = s.id \r\n"
-				+ "inner join operation.promoter p2 on p2.id = d.promoter_id where b.id = :idBrand and d.data >= :initialDate and d.data <= :finalDate ";
-		if(filter!= null) sql = sql + this.changeSQLString(sql, filter);
-		Query query = entityManager.createNativeQuery(sql);
-		query.setParameter("idBrand", idBrand);
-		query.setParameter("initialDate", initialDate);
-		query.setParameter("finalDate", finalDate);
-		if(filter!= null) changeQueryParameter(query, filter);
-
-		return query.getResultList();
-	}
 	
-	public List<Object> findByBrandwithOnlyPhotosToBook(LocalDate initialDate, LocalDate finalDate, long idBrand,
-			Map<String, String[]> filter) {
-
-		List<DataFile> datas = new ArrayList<>();
-		Map<String, List<Object>> objects = new HashMap<>();
-
-		String sql = "select distinct  d.id as id_datafile ,s.name as nameShop ,d.data as date ,d.project as id_project, p2.name as namePromoter \r\n"
-				+ "FROM report.datafile d \r\n"
-				+ "inner join report.datafile_photos dp on dp.datafile_id = d.id \r\n"
-				+ "inner join report.photo p on p.id = dp.photos_id \r\n"
-				+ "inner join operation.brand b on d.brand_id = b.id \r\n"
-				+ "inner join operation.shop s on d.shop_id = s.id \r\n"
-				+ "inner join operation.promoter p2 on p2.id = d.promoter_id where b.id = :idBrand and d.data >= :initialDate and d.data <= :finalDate ";
-		if(filter!= null) sql = sql + this.changeSQLString(sql, filter);
+		String sql = "select distinct  d.id as id_datafile ,b.id as id_brand ,d.shop_id as id_shop ,d.data as date ,pr.id as id_project, d.promoter_id as id_promoter "
+				+ "FROM report.datafile d " 
+				+ "inner join report.datafile_photos dp on dp.datafile_id = d.id "
+				+ "inner join report.photo p on p.id = dp.photos_id "
+				+ "inner join operation.brand b on d.brand_id = b.id "
+				+ "inner join operation.shop s on d.shop_id = s.id "
+				+ "inner join operation.project pr on d.project_id = pr.id "
+				+ "inner join operation.promoter p2 on p2.id = d.promoter_id "
+				+ "where b.id in (:idsBrand) and d.data >= :initialDate and d.data <= :finalDate "
+				+ " and (CASE WHEN COALESCE(:shops,null) is not null THEN s.id IN (:shops) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:projects,null) is not null THEN pr.id IN (:projects) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:products,null) is not null THEN p2.id IN (:products) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:promoters,null) is not null THEN p.id IN (:promoters) ELSE true END)";
 		Query query = entityManager.createNativeQuery(sql);
-		query.setParameter("idBrand", idBrand);
+		query.setParameter("idsBrand", idsBrand);
 		query.setParameter("initialDate", initialDate);
 		query.setParameter("finalDate", finalDate);
-		if(filter!= null) changeQueryParameter(query, filter);
+		query.setParameter("promoters", (filter != null && filter.getPromoters() != null) ? filter.getPromoters() : new ArrayList<>());
+		query.setParameter("shops", (filter != null && filter.getShops() != null) ? filter.getShops() :  new ArrayList<>());
+		query.setParameter("products", (filter != null && filter.getProducts() != null) ? filter.getProducts() :  new ArrayList<>());
+		query.setParameter("projects", (filter != null && filter.getProjects() != null) ? filter.getProjects() :  new ArrayList<>());
 
-		return query.getResultList();
-	}
-	
-	public List<Object> findByBrandwithOnlyDetails(LocalDate initialDate, LocalDate finalDate, long idBrand,
-			Map<String, String[]> filter) throws Exception {
-		List<DataFile> datas = new ArrayList<>();
-		Map<String, List<Object>> objects = new HashMap<>();
-		String sql = "SELECT distinct d.id as id_datafile ,d.brand_id as id_brand ,d.shop_id as id_shop ,d.data as date ,d.project as id_project, d.promoter_id as id_promoter "
-				+ " FROM datafile d, operation.shop s, operation.promoter p, detailproduct d2 , datafile_detailproduct dd, product p2 "
-				+ " where d.brand_id =:idBrand and d.shop_id = s.id and d.promoter_id = p.id "
-				+ " and d.id = dd.datafile_id  and dd.datafile_detailproduct_id = d2.id and d2.product_id = p2.id "
-				+ " and d.data >= :initialDate and d.data <= :finalDate ";
-
-		if(filter !=null) sql = sql + this.changeSQLString(sql, filter);
-
-		Query query = entityManager.createNativeQuery(sql);
-		query.setParameter("idBrand", idBrand);
-		query.setParameter("initialDate", initialDate);
-		query.setParameter("finalDate", finalDate);
-
-		if(filter !=null) changeQueryParameter(query, filter);
 
 		return query.getResultList();
 	}
 
-	public List<Object> findByBrandwithOnlyDetailsToDownload(LocalDate initialDate, LocalDate finalDate, long idBrand,
-			Map<String, String[]> filter) throws Exception {
-		List<DataFile> datas = new ArrayList<>();
-		Map<String, List<Object>> objects = new HashMap<>();
-		String sql = "SELECT distinct d.id, d.data as date, s.name as shop ,d.project as id_project "
-				+ " FROM datafile d, operation.shop s, operation.promoter p, detailproduct d2 , datafile_detailproduct dd, product p2 "
-				+ " where d.brand_id =:idBrand and d.shop_id = s.id and d.promoter_id = p.id "
-				+ " and d.id = dd.datafile_id  and dd.datafile_detailproduct_id = d2.id and d2.product_id = p2.id "
-				+ " and d.data >= :initialDate and d.data <= :finalDate ";
+	public List<Object> findByBrandwithOnlyPhotosToBook(LocalDate initialDate, LocalDate finalDate,List<Long> idsBrand,
+			FilterForm filter) {
 
-		if(filter!=null) sql = sql + this.changeSQLString(sql, filter);
-
+		String sql = "select distinct  d.id as id_datafile ,s.name as nameShop ,d.data as date ,pr.name as id_project, p2.name as namePromoter "
+				+ "FROM report.datafile d " 
+				+ "inner join report.datafile_photos dp on dp.datafile_id = d.id "
+				+ "inner join report.photo p on p.id = dp.photos_id "
+				+ "inner join operation.brand b on d.brand_id = b.id "
+				+ "inner join operation.shop s on d.shop_id = s.id "
+				+ "inner join operation.project pr on d.project_id = pr.id "
+				+ "inner join operation.promoter p2 on p2.id = d.promoter_id where b.id in (:idsBrand) and d.data >= :initialDate and d.data <= :finalDate "
+				+ " and (CASE WHEN COALESCE(:shops,null) is not null THEN s.id IN (:shops) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:projects,null) is not null THEN pr.id IN (:projects) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:products,null) is not null THEN p2.id IN (:products) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:promoters,null) is not null THEN p.id IN (:promoters) ELSE true END)";
 		Query query = entityManager.createNativeQuery(sql);
-		query.setParameter("idBrand", idBrand);
+		query.setParameter("idsBrand", idsBrand);
 		query.setParameter("initialDate", initialDate);
 		query.setParameter("finalDate", finalDate);
+		query.setParameter("promoters", (filter != null && filter.getPromoters() != null) ? filter.getPromoters() : new ArrayList<>());
+		query.setParameter("shops", (filter != null && filter.getShops() != null) ? filter.getShops() :  new ArrayList<>());
+		query.setParameter("products", (filter != null && filter.getProducts() != null) ? filter.getProducts() :  new ArrayList<>());
+		query.setParameter("projects", (filter != null && filter.getProjects() != null) ? filter.getProjects() :  new ArrayList<>());
 
-		if(filter!=null) changeQueryParameter(query, filter);
+		return query.getResultList();
+	}
+
+	public List<Object> findByBrandwithOnlyDetails(LocalDate initialDate, LocalDate finalDate, List<Long> idsBrand,
+			FilterForm filter) throws Exception {
+		String sql = "SELECT distinct d.id as id_datafile ,d.brand_id as id_brand ,d.shop_id as id_shop ,d.data as _date ,pr.id as id_project, d.promoter_id as id_promoter "
+				+ " FROM datafile d, operation.shop s, operation.promoter p, detailproduct d2 , datafile_detail_products dd, product p2, operation.project pr "
+				+ " where d.brand_id in :idsBrand and d.shop_id = s.id and d.promoter_id = p.id "
+				+ " and d.id = dd.data_file_id  and dd.detail_products_id = d2.id and d2.product_id = p2.id and pr.id = d.project_id"
+				+ " and d.data >= :initialDate and d.data <= :finalDate"
+				+ " and (CASE WHEN COALESCE(:shops,null) is not null THEN s.id IN (:shops) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:projects,null) is not null THEN pr.id IN (:projects) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:products,null) is not null THEN p2.id IN (:products) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:promoters,null) is not null THEN p.id IN (:promoters) ELSE true END)";
+
+		Query query = entityManager.createNativeQuery(sql);
+		query.setParameter("idsBrand", idsBrand);
+		query.setParameter("initialDate", initialDate);
+		query.setParameter("finalDate", finalDate);
+		query.setParameter("promoters", (filter != null && filter.getPromoters() != null) ? filter.getPromoters() : new ArrayList<>());
+		query.setParameter("shops", (filter != null && filter.getShops() != null) ? filter.getShops() :  new ArrayList<>());
+		query.setParameter("products", (filter != null && filter.getProducts() != null) ? filter.getProducts() :  new ArrayList<>());
+		query.setParameter("projects", (filter != null && filter.getProjects() != null) ? filter.getProjects() :  new ArrayList<>());
+
+		return query.getResultList();
+	}
+
+	public List<Object> findByBrandwithOnlyDetailsToDownload(LocalDate initialDate, LocalDate finalDate, List<Long> idBrand,
+			FilterForm filter) throws Exception {
+		Map<String, List<Object>> objects = new HashMap<>();
+		String sql = "SELECT distinct d.id, d.data as date, s.name as shop ,pr.name as project "
+				+ " FROM datafile d, operation.shop s, operation.promoter p, detailproduct d2 , datafile_detail_products dd, product p2, operation.project pr "
+				+ " where d.brand_id in :idsBrand and d.shop_id = s.id and d.promoter_id = p.id "
+				+ " and d.id = dd.data_file_id  and dd.detail_products_id = d2.id and d2.product_id = p2.id and pr.id = d.project_id"
+				+ " and d.data >= :initialDate and d.data <= :finalDate"
+				+ " and (CASE WHEN COALESCE(:shops,null) is not null THEN s.id IN (:shops) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:projects,null) is not null THEN pr.id IN (:projects) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:products,null) is not null THEN p2.id IN (:products) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:promoters,null) is not null THEN p.id IN (:promoters) ELSE true END)";
+
+
+		Query query = entityManager.createNativeQuery(sql);
+		query.setParameter("idsBrand", idBrand);
+		query.setParameter("initialDate", initialDate);
+		query.setParameter("finalDate", finalDate);
+		query.setParameter("finalDate", finalDate);
+		query.setParameter("promoters", (filter != null && filter.getPromoters() != null) ? filter.getPromoters() : new ArrayList<>());
+		query.setParameter("shops", (filter != null && filter.getShops() != null) ? filter.getShops() :  new ArrayList<>());
+		query.setParameter("products", (filter != null && filter.getProducts() != null) ? filter.getProducts() :  new ArrayList<>());
+		query.setParameter("projects", (filter != null && filter.getProjects() != null) ? filter.getProjects() :  new ArrayList<>());
+
 
 		return query.getResultList();
 	}
 
 	private String changeSQLString(String sql, Map<String, String[]> filter) {
 		String return_sql = "";
-		if(filter!=null) {
+		if (filter != null) {
 			if (filter.containsKey("shop")) {
 				return_sql = return_sql + " or s.name in ( :shops ) ";
 			}

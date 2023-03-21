@@ -13,7 +13,7 @@ public class UserDTO {
 	private Long id;
 	private String username;
 	private String password;
-	private List<BrandDTO> brand;
+	private List<BrandDTO> brands;
 	private String img;
 
 	public Long getId() {
@@ -48,12 +48,12 @@ public class UserDTO {
 		this.password = password;
 	}
 
-	public List<BrandDTO> getBrand() {
-		return brand;
+	public List<BrandDTO> getBrands() {
+		return brands;
 	}
 
-	public void setBrand(List<BrandDTO> brand) {
-		this.brand = brand;
+	public void setBrands(List<BrandDTO> brands) {
+		this.brands = brands;
 	}
 
 	public UserDTO convertToDTO(User user, ModelMapper modelMapper) {

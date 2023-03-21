@@ -29,8 +29,8 @@ public class DetailProductService {
 		 return detailProducts;
 	}
 	
-	public List<String[]> getRupturaBetweenDateByBrand(Long idBrand,LocalDate initialDate, LocalDate finalDate){
-		return detailProductRepository.getRupturaBetweenDateByBrand(idBrand, initialDate, finalDate);
+	public List<String[]> getRupturaBetweenDateByBrand(LocalDate initialDate, LocalDate finalDate,List<Long> idsBrand,List<Long> idsProject){
+		return detailProductRepository.getRupturaBetweenDateByBrand(initialDate, finalDate,idsBrand,(idsProject!=null)? idsProject : new ArrayList<>());
 	}
 	
 	public List<String[]> getValidityBetweenDateByBrand(Long idBrand, LocalDate initialDate, LocalDate finalDate){

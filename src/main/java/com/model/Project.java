@@ -1,20 +1,38 @@
 package com.model;
 
-import java.util.Arrays;
-import java.util.Optional;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-public enum Project {
-	FIXO_RJ(0),COMPARTILHADO_RJ(1),COMPARTILHADO_SP(2),COMPARTILHADO_ES(3),COMPARTILHADO_BA(4),EXCLUSIVO_RJ(5);
+@Entity
+@Table(name = "project", schema = "operation")
+public class Project {
 	
-	private final int value;
+	@Id
+	private Long id;
+	private String name;
+	private String nameApi;
 	
-	Project(int value){
-		this.value = value;
+	public Long getId() {
+		return id;
 	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getNameApi() {
+		return nameApi;
+	}
+	public void setNameApi(String nameApi) {
+		this.nameApi = nameApi;
+	}
+
 	
-	 public static Optional<Project> valueOf(int value) {
-	        return Arrays.stream(values())
-	            .filter(project -> project.value == value)
-	            .findFirst();
-	    }
 }

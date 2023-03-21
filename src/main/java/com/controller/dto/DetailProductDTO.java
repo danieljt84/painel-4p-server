@@ -3,7 +3,10 @@ package com.controller.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.model.DetailProduct;
+@JsonInclude(Include.NON_NULL)
 
 public class DetailProductDTO {
 	private long id;

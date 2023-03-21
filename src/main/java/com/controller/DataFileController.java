@@ -1,3 +1,4 @@
+
 package com.controller;
 
 import java.math.BigInteger;
@@ -69,19 +70,12 @@ public class DataFileController {
 
 	@ResponseBody
 	@PostMapping("/photos")
-	public ResponseEntity listPhotos(@RequestParam(name = "initialDate",required = false) String initialDate,@RequestParam  String finalDate
-			,@RequestParam long idBrand, @RequestBody  FilterForm filter) {
+	public ResponseEntity listPhotos(@RequestParam(name = "initialdate") String initialDate,@RequestParam(name = "finaldate") String finalDate
+			,@RequestParam(name = "idsbrand") List<Long> idsBrand, @RequestBody(required = false)  FilterForm filter) {
 		try {
 			List<DataFileOnlyPhotoDTO> dtos = new ArrayList<>();
-			List<Object> datas;
-			if(filter!=null) {
-				 datas = dataFileService.getPhotos(LocalDateConverter.convertToLocalDate(initialDate) , LocalDateConverter.convertToLocalDate(finalDate)
-						,idBrand,filter.getFilter());
-			}else {
-				 datas = dataFileService.getPhotos(LocalDateConverter.convertToLocalDate(initialDate) , LocalDateConverter.convertToLocalDate(finalDate)
-						,idBrand,null);
-			}
-			
+			List<Object> datas = dataFileService.getPhotos(LocalDateConverter.convertToLocalDate(initialDate) , LocalDateConverter.convertToLocalDate(finalDate)
+					,idsBrand,filter);
 			for(Object obj: datas) {
 				Object[] cast = (Object[]) obj;
 				DataFileOnlyPhotoDTO dto = new DataFileOnlyPhotoDTO();
@@ -101,12 +95,12 @@ public class DataFileController {
 	
 	@ResponseBody
 	@PostMapping("/details")
-	public ResponseEntity listDetails(@RequestParam String initialDate,@RequestParam  String finalDate
-			,@RequestParam long idBrand, @RequestBody  FilterForm filter) {
+	public ResponseEntity listDetails(@RequestParam(name = "initialdate") String initialDate,@RequestParam(name = "finaldate") String finalDate
+			,@RequestParam(name = "idsbrand") List<Long> idsBrand, @RequestBody(required = false)  FilterForm filter) {
 		try {
 			List<DataFileOnlyDetailsDTO> dtos = new ArrayList<>();
 			List<Object> datas = dataFileService.getDetails(LocalDateConverter.convertToLocalDate(initialDate) , LocalDateConverter.convertToLocalDate(finalDate)
-					,idBrand,filter.getFilter());
+					,idsBrand,filter);
 			for(Object obj: datas) {
 				Object[] cast = (Object[]) obj;
 				DataFileOnlyDetailsDTO dto = new DataFileOnlyDetailsDTO();
@@ -121,8 +115,7 @@ public class DataFileController {
 			return ResponseEntity.status(HttpStatus.OK).body(dtos);
 		} catch (Exception e) {
  			return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
-		}	
+		}
+		
 	}
-	
-	
 }

@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import javax.swing.border.Border;
+
 import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.stereotype.Service;
 
@@ -33,16 +35,18 @@ import com.util.itext.PDFBackground;
 @Service
 public class PdfService {
 
-	public byte[] createBookPhotos(List<DataBook> dataBooks, String nameBrand, LocalDate initialDate, LocalDate finalDate) {
-		Document document = new Document(new Rectangle(900, 595));
+	public byte[] createBookPhotos(List<DataBook> dataBooks, String nameBrand, LocalDate initialDate,
+			LocalDate finalDate) {
+		Document document = new Document(new Rectangle(400, 300));
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		try {
 			PdfWriter writer = PdfWriter.getInstance(document, bos);
 			writer.setPageEvent(new PDFBackground());
-			generateInitialPage(nameBrand, initialDate, finalDate, document);
-			for(DataBook dataBook: dataBooks) {
-				for(PhotoDataBook photoDataBook: dataBook.getPhotoDataBooks()) {
-					addPage(document,dataBook,photoDataBook);		
+			// generateInitialPage(nameBrand, initialDate, finalDate, document);
+			document.open();
+			for (DataBook dataBook : dataBooks) {
+				for (PhotoDataBook photoDataBook : dataBook.getPhotoDataBooks()) {
+					addPage(document, dataBook, photoDataBook);
 				}
 			}
 		} catch (DocumentException e) {
@@ -57,12 +61,12 @@ public class PdfService {
 
 		document.open();
 		float fntSize;
-		fntSize = 90f;
-		
+		fntSize = 30f;
+
 		Paragraph brandText = new Paragraph(
-				new Phrase(400f, nameBrand, FontFactory.getFont(FontFactory.defaultEncoding, fntSize)));
-		brandText.setPaddingTop(1000f);
-		Paragraph dateText = new Paragraph(new Phrase(10f, "", FontFactory.getFont(FontFactory.defaultEncoding, 50f)));
+				new Phrase(100f, nameBrand, FontFactory.getFont(FontFactory.defaultEncoding, fntSize)));
+		brandText.setPaddingTop(300f);
+		Paragraph dateText = new Paragraph(new Phrase(3f, "", FontFactory.getFont(FontFactory.defaultEncoding, 50f)));
 		dateText.add(initialDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " - "
 				+ finalDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
@@ -76,7 +80,7 @@ public class PdfService {
 
 		cellOne.setBorder(Rectangle.NO_BORDER);
 		cellOne.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
-		cellOne.setPaddingTop(150f);
+		cellOne.setPaddingTop(50f);
 		cellTwo.setBorder(Rectangle.NO_BORDER);
 		cellTwo.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
 		table.setHorizontalAlignment(table.ALIGN_CENTER);
@@ -90,65 +94,70 @@ public class PdfService {
 		document.add(table);
 	}
 
-	public void addPage(Document document, DataBook dataBook,PhotoDataBook photoDataBook) {
+	public void addPage(Document document, DataBook dataBook, PhotoDataBook photoDataBook) {
 		try {
 			document.newPage();
 			PdfPTable outer = new PdfPTable(new float[] { 50, 50 });
+			outer.getDefaultCell().setBorder(Rectangle.NO_BORDER);
 			outer.setWidthPercentage(100f);
-			addTableInformation(outer,dataBook.getDate(),dataBook.getNamePromoter(),dataBook.getNameShop(),dataBook.getNameProject(),photoDataBook.getSection());
-			addImage(outer,photoDataBook.getUrlImage());
+			addTableInformation(outer, dataBook.getDate(), dataBook.getNamePromoter(), dataBook.getNameShop(),
+					dataBook.getNameProject(), photoDataBook.getSection());
+			addImage(outer, photoDataBook.getUrlImage());
 			document.add(outer);
 		} catch (Exception e) {
 			System.out.println(e);
 		}
 
 	}
-	
-	public void addImage(PdfPTable outer,String urlImage) throws IOException, DocumentException {
+
+	public void addImage(PdfPTable outer, String urlImage) throws IOException, DocumentException {
 		PdfPTable table = new PdfPTable(1);
-		table.getDefaultCell().setBorder(PdfPCell.NO_BORDER);
-		table.setHorizontalAlignment(PdfPTable.ALIGN_RIGHT);
+		table.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
+		table.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+
 		String url = urlImage;
 		byte[] fileContent = getImageBytes(url);
 		Image image = Image.getInstance(fileContent);
-		image.scaleAbsolute(400F, 500f);
+		image.scaleAbsolute(133f, 200f);
 		image.setScaleToFitLineWhenOverflow(true);
 		PdfPCell cellImage = new PdfPCell(image);
-		cellImage.setBorder(PdfPCell.NO_BORDER);
-		cellImage.setHorizontalAlignment(PdfPCell.ALIGN_RIGHT);
-		cellImage.setPaddingLeft(20f);
+		cellImage.setPaddingLeft(30f);
+		cellImage.setBorder(Rectangle.NO_BORDER);
 		table.addCell(cellImage);
 		PdfPCell cellTable = new PdfPCell(table);
-		cellTable.setBorder(0);
-		cellTable.setHorizontalAlignment(PdfPCell.ALIGN_RIGHT);
+		cellTable.setBorder(Rectangle.NO_BORDER);
+		cellTable.setHorizontalAlignment(PdfPCell.ALIGN_LEFT);
 		outer.addCell(cellTable);
 	}
 
-	public void addTableInformation(PdfPTable outer,String date, String namePromoter, String nameShop, String nameProject, String section) throws DocumentException {
+	public void addTableInformation(PdfPTable outer, String date, String namePromoter, String nameShop,
+			String nameProject, String section) throws DocumentException {
 		PdfPTable table = new PdfPTable(1);
-		table.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
 		table.setWidthPercentage(20f);
-		PdfPCell cellDate = new PdfPCell(
-				new Phrase(20f, date, FontFactory.getFont(FontFactory.defaultEncoding, 20f)));
-		PdfPCell cellBrand = new PdfPCell(new Phrase(400f,"", FontFactory.getFont(FontFactory.defaultEncoding, 20f)));
-		PdfPCell cellShop = new PdfPCell(new Phrase(400f, nameShop, FontFactory.getFont(FontFactory.defaultEncoding, 20f)));
-		PdfPCell cellSection = new PdfPCell(new Phrase(20f, section, FontFactory.getFont(FontFactory.defaultEncoding, 20f)));
-		PdfPCell cellPromoter = new PdfPCell(new Phrase(20f, namePromoter, FontFactory.getFont(FontFactory.defaultEncoding, 20f)));
-		PdfPCell cellProject = new PdfPCell(new Phrase(20f, nameProject, FontFactory.getFont(FontFactory.defaultEncoding, 20f)));
-		
+		PdfPCell cellDate = new PdfPCell(new Phrase(7f, date, FontFactory.getFont(FontFactory.defaultEncoding, 7f)));
+		PdfPCell cellBrand = new PdfPCell(new Phrase(7f, "", FontFactory.getFont(FontFactory.defaultEncoding, 7f)));
+		PdfPCell cellShop = new PdfPCell(
+				new Phrase(7f, nameShop, FontFactory.getFont(FontFactory.defaultEncoding, 7f)));
+		PdfPCell cellSection = new PdfPCell(
+				new Phrase(7f, section, FontFactory.getFont(FontFactory.defaultEncoding, 7f)));
+		PdfPCell cellPromoter = new PdfPCell(
+				new Phrase(7f, namePromoter, FontFactory.getFont(FontFactory.defaultEncoding, 7f)));
+		PdfPCell cellProject = new PdfPCell(
+				new Phrase(7f, nameProject, FontFactory.getFont(FontFactory.defaultEncoding, 7f)));
+
 		cellDate.setBorder(PdfPCell.NO_BORDER);
 		cellBrand.setBorder(PdfPCell.NO_BORDER);
 		cellShop.setBorder(PdfPCell.NO_BORDER);
 		cellSection.setBorder(PdfPCell.NO_BORDER);
 		cellProject.setBorder(PdfPCell.NO_BORDER);
 		cellPromoter.setBorder(PdfPCell.NO_BORDER);
-		
+
 		table.addCell(cellDate);
 		table.addCell(cellShop);
 		table.addCell(cellPromoter);
 		table.addCell(cellProject);
 		table.addCell(cellSection);
-		
+
 		PdfPCell cellTable = new PdfPCell(table);
 		cellTable.setBorder(0);
 		outer.addCell(cellTable);

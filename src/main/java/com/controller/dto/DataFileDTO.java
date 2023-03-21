@@ -3,8 +3,10 @@ package com.controller.dto;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.model.Project;
-
+@JsonInclude(Include.NON_NULL)
 public class DataFileDTO {
 	private long id;
 	private ShopDTO shop;

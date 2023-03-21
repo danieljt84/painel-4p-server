@@ -1,5 +1,6 @@
 package com.controller;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,15 +26,15 @@ public class DetailProductController {
 	
 	@GetMapping
 	@RequestMapping("/ruptura")
-	public ResponseEntity getRupturaBetweenDateByBrand(@RequestParam("idBrand") String idBrand, @RequestParam String initialDate, @RequestParam String finalDate){
+	public ResponseEntity getRupturaBetweenDateByBrand(@RequestParam(name ="initialDate",required = false) String initialDate,@RequestParam  String finalDate, @RequestParam(name = "idsBrand") List<Long> idsBrand, @RequestParam(name = "idsProject",required = false) List<Long> idsProject){
 		try {
 		List<RupturaByBrandDTO> dtos = new ArrayList<>();
-		List<String[]> datas = detailProductService.getRupturaBetweenDateByBrand(Long.parseLong(idBrand), LocalDateConverter.convertToLocalDate(initialDate),  LocalDateConverter.convertToLocalDate(finalDate));
+		List<String[]> datas = detailProductService.getRupturaBetweenDateByBrand( LocalDateConverter.convertToLocalDate(initialDate),  LocalDateConverter.convertToLocalDate(finalDate),idsBrand,idsProject);
 		for(String[] data:datas) {
 			RupturaByBrandDTO rupturaByBrandDTO = new RupturaByBrandDTO();
-			rupturaByBrandDTO.setNameShop(data[0]);
-			rupturaByBrandDTO.setNameProduct(data[1]);
-			rupturaByBrandDTO.setDate(data[2]);
+			rupturaByBrandDTO.setNameShop((String)data[0]);
+			rupturaByBrandDTO.setNameProduct((String)data[1]);
+			rupturaByBrandDTO.setDate(((String)data[2]).toString());
 			dtos.add(rupturaByBrandDTO);
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(dtos);

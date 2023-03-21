@@ -1,10 +1,12 @@
 package com.controller;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,26 +40,22 @@ public class ReportController {
 	
 	
 	@RequestMapping(value="/details", method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity listDetailsToDownload(@RequestParam(name ="initialDate",required = false) String initialDate,@RequestParam  String finalDate,@RequestParam Long idBrand
+	public ResponseEntity listDetailsToDownload(@RequestParam(name ="initialDate") String initialDate,@RequestParam  String finalDate,@RequestParam(name = "idsBrand") List<Long> idsBrand
 			, @RequestBody(required = false)  FilterForm filter) {
         HttpHeaders headers = new HttpHeaders();
 		List<String[]> datas_excel = new ArrayList<>();
 
         try {
         	List<Object> datas;
-        	if(filter == null) {
+        	
         		datas = dataFileService.getDetailsToDownload(LocalDateConverter.convertToLocalDate(initialDate) , LocalDateConverter.convertToLocalDate(finalDate)
-        				,idBrand,null);
-        	}else {
-        		datas = dataFileService.getDetailsToDownload(LocalDateConverter.convertToLocalDate(initialDate) , LocalDateConverter.convertToLocalDate(finalDate)
-        				,idBrand,filter.getFilter());
-        	}
+        				,idsBrand,filter);
 
     		for(Object object: datas) {
     			Object[] cast = (Object[]) object;
     		    var date = ((java.sql.Date) cast[1]).toLocalDate().toString();
                 var shop = (String) cast[2];
-                var project = ((Integer)cast[3]!=null)? Project.valueOf(((Integer)cast[3])).get().toString() : null;
+                var project = ((String)cast[3]);
                 List<DetailProduct> details = detailProductService.getDetailProductByDataFile(((BigInteger)cast[0]).longValue());
                 for(DetailProduct detail: details){
         			String[] data = new String[8];
@@ -83,11 +81,11 @@ public class ReportController {
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/ruptura")
-	public ResponseEntity rupturaToDownload(@RequestParam(name ="initialDate",required = false) String initialDate,@RequestParam  String finalDate,@RequestParam("idBrand") String idBrand) {
+	public ResponseEntity rupturaToDownload(@RequestParam(name ="initialDate",required = false) String initialDate,@RequestParam  String finalDate, @RequestParam(name = "idsBrand") List<Long> idsBrand, @RequestParam(name = "idsProject",required = false) List<Long> idsProject) {
 		try{
 	        HttpHeaders headers = new HttpHeaders();
 
-			List<String[]> datas = detailProductService.getRupturaBetweenDateByBrand(Long.parseLong(idBrand), LocalDateConverter.convertToLocalDate(initialDate),  LocalDateConverter.convertToLocalDate(finalDate));
+			List<String[]> datas = detailProductService.getRupturaBetweenDateByBrand( LocalDateConverter.convertToLocalDate(initialDate),  LocalDateConverter.convertToLocalDate(finalDate),idsBrand,idsProject);
 			return ResponseEntity
             		.ok()
             		.headers(headers)
@@ -103,11 +101,16 @@ public class ReportController {
 		try{
 	        HttpHeaders headers = new HttpHeaders();
 			List<String[]> datas = detailProductService.getValidityBetweenDateByBrand(Long.parseLong(idBrand), LocalDateConverter.convertToLocalDate(initialDate),  LocalDateConverter.convertToLocalDate(finalDate));
+			if(datas!=null) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+			}
+			
+			var in = new InputStreamResource(new ByteArrayInputStream(excelService.generateValidadeExcel(datas)));
 			return ResponseEntity
             		.ok()
             		.headers(headers)
             		.contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
-            		.body(excelService.generateValidadeExcel(datas));
+            		.body(in);
 		}catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}

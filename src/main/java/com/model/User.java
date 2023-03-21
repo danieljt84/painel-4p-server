@@ -14,11 +14,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity(name = "_user")
+@Table(schema = "auth")
 public class User implements UserDetails {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,11 +29,11 @@ public class User implements UserDetails {
 	private String password;
 	@ManyToMany
 	@JoinTable(name = "user_brand", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
-			@JoinColumn(name = "brand_id") })
-	private List<Brand> brand;
-	@Column
-	@Enumerated
-	@ElementCollection(targetClass = Project.class)
+			@JoinColumn(name = "brand_id") },schema = "auth")
+	private List<Brand> brands;
+	@ManyToMany
+	@JoinTable(name = "user_project", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "project_id") },schema = "auth")
 	private List<Project> projects;
 	@ManyToOne
 	private Role role;
@@ -72,12 +74,12 @@ public class User implements UserDetails {
 
 	
 
-	public List<Brand> getBrand() {
-		return brand;
+	public List<Brand> getBrands() {
+		return brands;
 	}
 
-	public void setBrand(List<Brand> brand) {
-		this.brand = brand;
+	public void setBrands(List<Brand> brands) {
+		this.brands = brands;
 	}
 
 	public List<Project> getProjects() {

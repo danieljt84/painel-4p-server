@@ -2,6 +2,10 @@ package com.controller.dto;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+@JsonInclude(Include.NON_NULL)
+
 public class ProductDTO {
 	
 	private Long id;

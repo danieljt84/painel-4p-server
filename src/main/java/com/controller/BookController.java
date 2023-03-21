@@ -32,7 +32,7 @@ import com.util.book.PhotoDataBook;
 @RestController
 @RequestMapping("/book")
 public class BookController {
-	
+
 	@Autowired
 	PdfService pdfService;
 	@Autowired
@@ -41,42 +41,42 @@ public class BookController {
 	PhotoService photoService;
 	@Autowired
 	BrandService brandService;
-	
+
 	@PostMapping()
-	public ResponseEntity generateBookPhotos(@RequestParam(name = "initialDate",required = false) String initialDate,@RequestParam  String finalDate
-			,@RequestParam long idBrand, @RequestBody(required = false)  FilterForm filter) {
-		try { 
-		   Brand brand = brandService.getBrandById(idBrand);
-		   List<Object[]> datas;
-		   List<DataBook> datasBook = new ArrayList<>();
-		   
-		   if(filter!=null) {
-	            datas = dataFileService.getPhotosToBook(LocalDate.parse(initialDate), LocalDate.parse(finalDate), idBrand, filter.getFilter()).stream().map(element -> ((Object[]) element)).collect(Collectors.toList());
-		   }else {
-			   datas = dataFileService.getPhotosToBook(LocalDate.parse(initialDate), LocalDate.parse(finalDate), idBrand, null).stream().map(element -> ((Object[]) element)).collect(Collectors.toList());
-		   }
-		   
-		   for(Object[] data :datas) {
-			   DataBook dataBook = new DataBook();
-			   dataBook.setNameShop((String) data[1]);
-			   dataBook.setDate(((Date) data[2]).toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-		       dataBook.setNameProject(Project.valueOf((Integer)data[3]).get().name());
-		       dataBook.setNamePromoter((String) data[4]);
-		       List<PhotoDataBook> photoDataBooks = new ArrayList<>();
-		       for(Photo photo: photoService.getPhotosByDataFile(((BigInteger)data[0]).longValue())){
-		    	   PhotoDataBook photoDataBook =new PhotoDataBook();
-		    	   photoDataBook.setUrlImage(photo.getUrl());
-		    	   photoDataBook.setSection(photo.getSection());
-		    	   photoDataBooks.add(photoDataBook);
-		       }
-		       dataBook.setPhotoDataBooks(photoDataBooks);
-		       datasBook.add(dataBook);
-		   }
-		   
-			var pdf = pdfService.createBookPhotos(datasBook,brand.getName(),LocalDate.parse(initialDate),LocalDate.parse(finalDate));
-		    return ResponseEntity.ok(pdf);
-		}catch (Exception e) {
-			return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);		}
+	public ResponseEntity generateBookPhotos(@RequestParam(name = "initialDate", required = false) String initialDate,
+			@RequestParam String finalDate, @RequestParam(name = "idsBrand") List<Long> idsBrand,
+			@RequestBody(required = false) FilterForm filter) {
+		try {
+			List<Object[]> datas;
+			List<DataBook> datasBook = new ArrayList<>();
+
+			datas = dataFileService
+					.getPhotosToBook(LocalDate.parse(initialDate), LocalDate.parse(finalDate), idsBrand,
+							filter)
+					.stream().map(element -> ((Object[]) element)).collect(Collectors.toList());
+			for (Object[] data : datas) {
+				DataBook dataBook = new DataBook();
+				dataBook.setNameShop((String) data[1]);
+				dataBook.setDate(((Date) data[2]).toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+				dataBook.setNameProject((String) data[3]);
+				dataBook.setNamePromoter((String) data[4]);
+				List<PhotoDataBook> photoDataBooks = new ArrayList<>();
+				for (Photo photo : photoService.getPhotosByDataFile(((BigInteger) data[0]).longValue())) {
+					PhotoDataBook photoDataBook = new PhotoDataBook();
+					photoDataBook.setUrlImage(photo.getUrl());
+					photoDataBook.setSection(photo.getSection());
+					photoDataBooks.add(photoDataBook);
+				}
+				dataBook.setPhotoDataBooks(photoDataBooks);
+				datasBook.add(dataBook);
+			}
+
+			var pdf = pdfService.createBookPhotos(datasBook, "BOOK DE FOTOS", LocalDate.parse(initialDate),
+					LocalDate.parse(finalDate));
+			return ResponseEntity.ok(pdf);
+		} catch (Exception e) {
+			return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
 	}
 
 }

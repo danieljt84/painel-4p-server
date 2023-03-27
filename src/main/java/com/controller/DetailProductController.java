@@ -4,7 +4,9 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +28,7 @@ public class DetailProductController {
 	
 	@GetMapping
 	@RequestMapping("/ruptura")
+	@Cacheable("ruptura")
 	public ResponseEntity getRupturaBetweenDateByBrand(@RequestParam(name ="initialDate",required = false) String initialDate,@RequestParam  String finalDate, @RequestParam(name = "idsBrand") List<Long> idsBrand, @RequestParam(name = "idsProject",required = false) List<Long> idsProject){
 		try {
 		List<RupturaByBrandDTO> dtos = new ArrayList<>();
@@ -44,17 +47,18 @@ public class DetailProductController {
 	}
 	@GetMapping
 	@RequestMapping("/validity")
-	public ResponseEntity getValidityBetweenDateByBrand(@RequestParam("idBrand") String idBrand, @RequestParam String initialDate, @RequestParam String finalDate){
+	@Cacheable("validity")
+	public ResponseEntity getValidityBetweenDateByBrand(@RequestParam(name ="initialDate",required = false) String initialDate,@RequestParam  String finalDate, @RequestParam(name = "idsBrand") List<Long> idsBrand, @RequestParam(name = "idsProject",required = false) List<Long> idsProject){
 		try {
 			List<ValidityByBrandDTO> dtos = new ArrayList<>();
-			List<String[]> datas = detailProductService.getValidityBetweenDateByBrand(Long.parseLong(idBrand),LocalDateConverter.convertToLocalDate(initialDate),  LocalDateConverter.convertToLocalDate(finalDate));
+			List<String[]> datas = detailProductService.getValidityBetweenDateByBrand(LocalDateConverter.convertToLocalDate(initialDate),  LocalDateConverter.convertToLocalDate(finalDate),idsBrand,idsProject);
 			for(String[] data:datas) {
 				ValidityByBrandDTO dto = new ValidityByBrandDTO();
 				dto.setDate(data[0]);
-				dto.setNameProduct(data[1]);
-				dto.setNameShop(data[2]);
-				dto.setValidity(data[3]);
-				dto.setStock(data[4]);
+				dto.setNameProduct(data[3]);
+				dto.setNameShop(data[4]);
+				dto.setValidity(data[5]);
+				dto.setStock(data[6]);
 				dtos.add(dto);
 			}
 			return ResponseEntity.status(HttpStatus.OK).body(dtos);
@@ -62,11 +66,9 @@ public class DetailProductController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
-
-	
-	
-	
-	
-
-
+	@GetMapping
+	@RequestMapping("/resumestock")
+	public ResponseEntity getResumeStock (@RequestParam(name = "idsBrand") List<Long> idsBrand, @RequestParam(name = "idsProject",required = false) List<Long> idsProject) {
+		return ResponseEntity.status(HttpStatus.OK).body(detailProductService.getResumeStock( idsBrand, idsProject));		
+	}
 }

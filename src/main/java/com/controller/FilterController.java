@@ -3,6 +3,7 @@ package com.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,7 @@ public class FilterController {
 	@Autowired
 	FilterService filterService;
 	@GetMapping("/datatable")
+	@Cacheable("datatable")
 	public ResponseEntity getAllValuesPossibleToFilter(@RequestParam String initialDate, @RequestParam  String finalDate,@RequestParam List<Long> idsBrand){
 		try {
 			return ResponseEntity.status(HttpStatus.OK).body(filterService.getAllValuesPossibleToFilterToDataTable(LocalDateConverter.convertToLocalDate(initialDate), LocalDateConverter.convertToLocalDate(finalDate), idsBrand));
@@ -31,6 +33,7 @@ public class FilterController {
 	}
 	
 	@GetMapping("/gallery")
+	@Cacheable("gallery")
 	public ResponseEntity getAllValuesPossibleToFilterToGallery(@RequestParam String initialDate, @RequestParam  String finalDate,@RequestParam List<Long> idsBrand){
 		try {
 			return ResponseEntity.status(HttpStatus.OK).body(filterService.getAllValuesPossibleToFilterToGallery(LocalDateConverter.convertToLocalDate(initialDate), LocalDateConverter.convertToLocalDate(finalDate), idsBrand));

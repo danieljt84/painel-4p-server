@@ -29,8 +29,15 @@ public interface DetailProductRepository extends JpaRepository<DetailProduct, Lo
 	
 	@Query(value = "select * "
 			+ "FROM report.validity v "
-			+ "where d.brand_id = :idBrand "
-			+ "and dp.validity >= :finalDate and dp.validity <= :validityFinalDate  and dp.stock > 0 "
-			+ "and d.\"data\" >= :initialDate", nativeQuery = true)
-	List<String[]> getValidityBetweenDateByBrand(@Param(value ="idBrand") Long idBrand, @Param(value = "finalDate") LocalDate finalDate, @Param(value = "initialDate") LocalDate initialDate, @Param(value = "validityFinalDate") LocalDate validityFinalDate);
+			+ "where v.id_brand in :idsBrand "
+			+ "and v.validity >= :finalDate and v.validity <= :validityFinalDate  and v.stock > 0 "
+			+ "and v.\"data\" >= :initialDate "
+			+ "and (CASE WHEN COALESCE(:idsProject,null) is not null THEN v.id_project IN (:idsProject) ELSE true END) ", nativeQuery = true)
+	List<String[]> getValidityBetweenDateByBrand(@Param(value = "finalDate") LocalDate finalDate, @Param(value = "initialDate") LocalDate initialDate,@Param(value = "idsBrand")List<Long> idsBrand, @Param(value ="idsProject") List<Long> idsProject, @Param(value = "validityFinalDate") LocalDate validityFinalDate);
+
+	@Query(value = "select * "
+			+ "FROM report.pq p "
+			+ "where p.brand_id in :idsBrand and p.seqnum <=4"
+			+ "and (CASE WHEN COALESCE(:idsProject,null) is not null THEN p.project_id IN (:idsProject) ELSE true END) ", nativeQuery = true)
+	List<String[]> getResumeStockByBrand(@Param(value = "idsBrand")List<Long> idsBrand, @Param(value ="idsProject") List<Long> idsProject);
 }

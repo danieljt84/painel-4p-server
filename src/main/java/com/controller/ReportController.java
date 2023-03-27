@@ -96,13 +96,13 @@ public class ReportController {
 		}
 	}
 	
-	@RequestMapping(method = RequestMethod.POST, value = "/validade")
-	public ResponseEntity validadeToDownload(@RequestParam(name ="initialDate",required = false) String initialDate,@RequestParam  String finalDate,@RequestParam("idBrand") String idBrand) {
+	@RequestMapping(method = RequestMethod.POST, value = "/validity")
+	public ResponseEntity validadeToDownload(@RequestParam(name ="initialDate",required = false) String initialDate,@RequestParam  String finalDate, @RequestParam(name = "idsBrand") List<Long> idsBrand, @RequestParam(name = "idsProject",required = false) List<Long> idsProject) {
 		try{
 	        HttpHeaders headers = new HttpHeaders();
-			List<String[]> datas = detailProductService.getValidityBetweenDateByBrand(Long.parseLong(idBrand), LocalDateConverter.convertToLocalDate(initialDate),  LocalDateConverter.convertToLocalDate(finalDate));
-			if(datas!=null) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+			List<String[]> datas = detailProductService.getValidityBetweenDateByBrand(LocalDateConverter.convertToLocalDate(initialDate),  LocalDateConverter.convertToLocalDate(finalDate),idsBrand,idsProject);
+			if(datas==null) {
+				return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 			}
 			
 			var in = new InputStreamResource(new ByteArrayInputStream(excelService.generateValidadeExcel(datas)));

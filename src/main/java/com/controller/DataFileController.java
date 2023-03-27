@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -70,6 +71,7 @@ public class DataFileController {
 
 	@ResponseBody
 	@PostMapping("/photos")
+	@Cacheable("photos")
 	public ResponseEntity listPhotos(@RequestParam(name = "initialdate") String initialDate,@RequestParam(name = "finaldate") String finalDate
 			,@RequestParam(name = "idsbrand") List<Long> idsBrand, @RequestBody(required = false)  FilterForm filter) {
 		try {
@@ -95,6 +97,7 @@ public class DataFileController {
 	
 	@ResponseBody
 	@PostMapping("/details")
+	@Cacheable("details")
 	public ResponseEntity listDetails(@RequestParam(name = "initialdate") String initialDate,@RequestParam(name = "finaldate") String finalDate
 			,@RequestParam(name = "idsbrand") List<Long> idsBrand, @RequestBody(required = false)  FilterForm filter) {
 		try {

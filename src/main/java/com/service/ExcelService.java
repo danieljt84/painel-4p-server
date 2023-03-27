@@ -96,10 +96,10 @@ public class ExcelService {
 		for(String[] data : datas) {
 			XSSFRow row = sheet.createRow((short) cont++);
             row.createCell(0).setCellValue(data[0]);
-            row.createCell(1).setCellValue(data[2]);
-            row.createCell(2).setCellValue(data[1]);
-            row.createCell(3).setCellValue(data[3]);
-            row.createCell(4).setCellValue(data[4]);
+            row.createCell(1).setCellValue(data[4]);
+            row.createCell(2).setCellValue(data[3]);
+            row.createCell(3).setCellValue(data[5]);
+            row.createCell(4).setCellValue(data[6]);
 		}
 		try {
 			workbook.write(bos);

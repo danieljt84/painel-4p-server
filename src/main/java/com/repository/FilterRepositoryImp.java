@@ -44,8 +44,8 @@ public class FilterRepositoryImp {
 	public List<Object[]> getAllValuesToProductPossibleToFilter(LocalDate initialDate, LocalDate finalDate, List<Long> idsBrand) {
     	Query query = entityManager
     			.createNativeQuery("select distinct p.id, p.\"name\" "
-    					+ "from datafile d,product p, datafile_detail_products dd, detailproduct d2 "
-    					+ "where d.id = dd.data_file_id and dd.detail_products_id= d2.id and d2.product_id = p.id  and d.brand_id in :idsBrand and d.\"data\" >= :initialDate and  d.\"data\" <= :finalDate ;");
+    					+ "from datafile d,product p, datafile_detailproducts dd, detailproduct d2 "
+    					+ "where d.id = dd.datafile_id and dd.detailproduct_id= d2.id and d2.product_id = p.id  and d.brand_id in :idsBrand and d.\"data\" >= :initialDate and  d.\"data\" <= :finalDate ;");
         query.setParameter("idsBrand", idsBrand);
     	query.setParameter("initialDate", initialDate);
     	query.setParameter("finalDate", finalDate);
@@ -55,8 +55,8 @@ public class FilterRepositoryImp {
 	public List<Object> getAllValuesToStatusPossibleToFilter(LocalDate initialDate, LocalDate finalDate, List<Long> idsBrand) {
     	Query query = entityManager
     			.createNativeQuery("select distinct  d2.ruptura "
-    					+ "from datafile d, datafile_detail_products dd, detailproduct d2  "
-    					+ "where d.id = dd.data_file_id and dd.detail_products_id= d2.id and d.brand_id in :idsBrand and d.\"data\" >= :initialDate and  d.\"data\" <= :finalDate ;");
+    					+ "from datafile d, datafile_detailproducts dd, detailproduct d2  "
+    					+ "where d.id = dd.datafile_id and dd.detailproduct_id= d2.id and d.brand_id in :idsBrand and d.\"data\" >= :initialDate and  d.\"data\" <= :finalDate ;");
         query.setParameter("idsBrand", idsBrand);
     	query.setParameter("initialDate", initialDate);
     	query.setParameter("finalDate", finalDate);

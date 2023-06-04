@@ -34,14 +34,26 @@ public class DataFileService {
 	
 	
 	public List<Object> getPhotos(LocalDate initialDate ,LocalDate finalDate
-			,  List<Long> idsBrand, FilterForm filter) throws Exception{
+			,  List<Long> idsBrand, FilterForm filter,Long limit, Long offset) throws Exception{
 		try {
 			return dataFileRepositoryimp.findByBrandwithOnlyPhotos(initialDate,finalDate
-					,idsBrand,filter);
+					,idsBrand,filter,limit,offset);
 		} catch (Exception e) {
 			throw new Exception("ERRO NA CONSULTA",e);
 		}
 	}
+	
+	public Integer getPhotosCount(LocalDate initialDate ,LocalDate finalDate
+			,  List<Long> idsBrand, FilterForm filter,Long limit, Long offset) throws Exception{
+		try {
+			return dataFileRepositoryimp.findByBrandwithOnlyPhotosCount(initialDate,finalDate
+					,idsBrand,filter,limit,offset);
+		} catch (Exception e) {
+			throw new Exception("ERRO NA CONSULTA",e);
+		}
+	}
+	
+	
 	
 	public List<Object> getPhotosToBook(LocalDate initialDate ,LocalDate finalDate
 			,  List<Long> idsBrand, FilterForm filter) throws Exception{

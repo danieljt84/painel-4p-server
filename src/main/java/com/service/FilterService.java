@@ -20,6 +20,7 @@ import com.controller.dto.filter.FilterDTO;
 import com.controller.dto.filter.FilterDetailsDTO;
 import com.controller.dto.filter.FilterGalleryDTO;
 import com.repository.FilterRepositoryImp;
+import com.service.security.TokenService;
 import com.sun.xml.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 @Service
@@ -27,6 +28,7 @@ public class FilterService {
 
 	@Autowired
 	FilterRepositoryImp filterRepositoryImp;
+
 
 	// Funcao que organiza os valores para usar no filtro dos campos da Datatable do
 	// front-end

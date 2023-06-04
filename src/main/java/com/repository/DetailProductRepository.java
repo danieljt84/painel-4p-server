@@ -15,8 +15,8 @@ import lombok.val;
 @Repository
 public interface DetailProductRepository extends JpaRepository<DetailProduct, Long>{
   
-	@Query(value = "select d.id from detailproduct d ,datafile d2, datafile_detail_products dd "
-			+ "where d2.id = dd.data_file_id  and dd.detail_products_id = d.id and d2.id= :idDatafile ",nativeQuery = true)
+	@Query(value = "select d.id from detailproduct d ,datafile d2, datafile_detailproducts dd "
+			+ "where d2.id = dd.datafile_id  and dd.detailproduct_id = d.id and d2.id= :idDatafile ",nativeQuery = true)
 	List<Long> getDetailProductByDataFile(@Param(value = "idDatafile") Long idDataFile);
 	
 	@Query(value = "SELECT * "

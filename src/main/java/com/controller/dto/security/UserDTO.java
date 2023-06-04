@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 
 import com.controller.dto.BrandDTO;
+import com.controller.dto.ProjectDTO;
 import com.model.User;
 
 public class UserDTO {
@@ -14,6 +15,7 @@ public class UserDTO {
 	private String username;
 	private String password;
 	private List<BrandDTO> brands;
+	private List<ProjectDTO> projects;
 	private String img;
 
 	public Long getId() {
@@ -22,6 +24,15 @@ public class UserDTO {
 
 	public String getUsername() {
 		return username;
+	}
+
+
+	public List<ProjectDTO> getProjects() {
+		return projects;
+	}
+
+	public void setProjects(List<ProjectDTO> projects) {
+		this.projects = projects;
 	}
 
 	public String getImg() {

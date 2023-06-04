@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.controller.dto.DataFileDTO;
 import com.controller.dto.DataFileOnlyDetailsDTO;
 import com.controller.dto.DataFileOnlyPhotoDTO;
+import com.controller.dto.DataFileOnlyPhotoListDTO;
 import com.controller.dto.filter.FilterDTO;
 import com.controller.dto.filter.FilterGalleryDTO;
 import com.form.FilterForm;
@@ -73,11 +74,13 @@ public class DataFileController {
 	@PostMapping("/photos")
 	@Cacheable("photos")
 	public ResponseEntity listPhotos(@RequestParam(name = "initialdate") String initialDate,@RequestParam(name = "finaldate") String finalDate
-			,@RequestParam(name = "idsbrand") List<Long> idsBrand, @RequestBody(required = false)  FilterForm filter) {
+			,@RequestParam(name = "idsbrand") List<Long> idsBrand,@RequestParam(name = "limit") long limit, @RequestParam(name = "offset") long offset , @RequestBody(required = false)  FilterForm filter) {
 		try {
-			List<DataFileOnlyPhotoDTO> dtos = new ArrayList<>();
+			DataFileOnlyPhotoListDTO data = new DataFileOnlyPhotoListDTO();
 			List<Object> datas = dataFileService.getPhotos(LocalDateConverter.convertToLocalDate(initialDate) , LocalDateConverter.convertToLocalDate(finalDate)
-					,idsBrand,filter);
+					,idsBrand,filter,limit,offset);
+			data.setCount(dataFileService.getPhotosCount(LocalDateConverter.convertToLocalDate(initialDate) , LocalDateConverter.convertToLocalDate(finalDate)
+					,idsBrand,filter,limit,offset));
 			for(Object obj: datas) {
 				Object[] cast = (Object[]) obj;
 				DataFileOnlyPhotoDTO dto = new DataFileOnlyPhotoDTO();
@@ -87,13 +90,15 @@ public class DataFileController {
 				dto.setDate(((java.sql.Date) cast[3]).toLocalDate());
 				dto.setPromoter(promoterService.convertToDto(promoterService.getBrandById(((BigInteger)cast[5]).longValue())));
                 dto.setPhotos(photoService.convertToDTOS(photoService.getPhotosByDataFile(dto.getId())));
-				dtos.add(dto);
+				data.getList().add(dto);
 			}
-			return ResponseEntity.status(HttpStatus.OK).body(dtos);
+			return ResponseEntity.status(HttpStatus.OK).body(data);
 		} catch (Exception e) {
 			return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	
 	
 	@ResponseBody
 	@PostMapping("/details")

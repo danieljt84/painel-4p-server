@@ -85,6 +85,23 @@ public class DataFileService {
 			throw new Exception("ERRO NA CONSULTA",e);
 		}
 	}
+	
+	public List<Object[]> getAverageSupply( LocalDate initialDate ,LocalDate finalDate,List<Long> idsBrand, FilterForm filter) throws Exception{
+		try {
+			return dataFileRepositoryimp.getAverageSupply(initialDate, finalDate, idsBrand, filter);
+		}catch (Exception e) {
+			throw new Exception("ERRO NA CONSULTA",e);
+		}
+	}
+	
+	public Long getCountAverageSupply(LocalDate initialDate ,LocalDate finalDate,List<Long> idsBrand, FilterForm filter)throws Exception{
+		try {
+			return dataFileRepositoryimp.getCountAverageSupply(initialDate, finalDate, idsBrand, filter);
+		}catch (Exception e) {
+			throw new Exception("ERRO NA CONSULTA",e);
+		}
+		
+	}
 }
 
 

@@ -23,7 +23,7 @@ public interface DetailProductRepository extends JpaRepository<DetailProduct, Lo
 			+ "FROM report.ruptura r "
 			+ "where r.brand_id in :idsBrand "
 			+ "and r.date >= :initialDate and r.date <= :finalDate "
-			+ "and (CASE WHEN COALESCE(:idsProject,null) is not null THEN r.project_id IN (:idsProject) ELSE true END) ", nativeQuery = true)
+			+ "and (CASE WHEN COALESCE(:idsProject,null) is not null THEN r.project_id IN (:idsProject) ELSE true END) ORDER BY r.brand_id  ", nativeQuery = true)
 	List<String[]> getRupturaBetweenDateByBrand(@Param(value = "initialDate") LocalDate initialDate, @Param(value = "finalDate") LocalDate finalDate,@Param(value = "idsBrand")List<Long> idsBrand, @Param(value ="idsProject") List<Long> idsProject );
 
 	

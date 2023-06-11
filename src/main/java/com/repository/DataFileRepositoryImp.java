@@ -169,7 +169,6 @@ public class DataFileRepositoryImp {
 		query.setParameter("idsBrand", idBrand);
 		query.setParameter("initialDate", initialDate);
 		query.setParameter("finalDate", finalDate);
-		query.setParameter("finalDate", finalDate);
 		query.setParameter("promoters", (filter != null && filter.getPromoters() != null) ? filter.getPromoters() : new ArrayList<>());
 		query.setParameter("shops", (filter != null && filter.getShops() != null) ? filter.getShops() :  new ArrayList<>());
 		query.setParameter("products", (filter != null && filter.getProducts() != null) ? filter.getProducts() :  new ArrayList<>());
@@ -178,6 +177,44 @@ public class DataFileRepositoryImp {
 
 		return query.getResultList();
 	}
+	
+	public List<Object[]> getAverageSupply(LocalDate initialDate ,LocalDate finalDate,List<Long> idsBrand, FilterForm filter){
+		String sql = "SELECT pq.produto, pq.shop, pq.project, pq.brand_id,pq.data, pq.stock,pq.seqnum FROM report.pq pq "
+				+ "where pq.brand_id in :idsBrand and pq.data >= :initialDate and pq.data <= :finalDate "
+				+ " and (CASE WHEN COALESCE(:shops,null) is not null THEN pq.shop_id IN (:shops) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:projects,null) is not null THEN pq.project_id IN (:projects) ELSE true END)"
+				+ "and pq.seqnum <5";
+		
+		Query query = entityManager.createNativeQuery(sql);
+		query.setParameter("idsBrand", idsBrand);
+		query.setParameter("initialDate", initialDate);
+		query.setParameter("finalDate", finalDate);
+		query.setParameter("shops", (filter != null && filter.getShops() != null) ? filter.getShops() :  new ArrayList<>());
+		query.setParameter("projects", (filter != null && filter.getProjects() != null) ? filter.getProjects() :  new ArrayList<>());
+
+		return query.getResultList();
+
+	}
+	
+	public Long getCountAverageSupply(LocalDate initialDate ,LocalDate finalDate,List<Long> idsBrand, FilterForm filter){
+		String sql = "SELECT count(pq.brand_id) FROM report.pq pq   "
+				+ "where pq.brand_id in :idsBrand and pq.data >= :initialDate and pq.data <= :finalDate "
+				+ " and (CASE WHEN COALESCE(:shops,null) is not null THEN pq.shop_id IN (:shops) ELSE true END)"
+				+ " and (CASE WHEN COALESCE(:projects,null) is not null THEN pq.project_id IN (:projects) ELSE true END)"
+				+ "and pq.seqnum <5";
+		
+		Query query = entityManager.createNativeQuery(sql);
+		query.setParameter("idsBrand", idsBrand);
+		query.setParameter("initialDate", initialDate);
+		query.setParameter("finalDate", finalDate);
+		query.setParameter("shops", (filter != null && filter.getShops() != null) ? filter.getShops() :  new ArrayList<>());
+		query.setParameter("projects", (filter != null && filter.getProjects() != null) ? filter.getProjects() :  new ArrayList<>());
+
+		return ((BigInteger) query.getSingleResult()).longValue();
+
+	}
+	
+	
 
 	private String changeSQLString(String sql, Map<String, String[]> filter) {
 		String return_sql = "";

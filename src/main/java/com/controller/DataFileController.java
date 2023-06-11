@@ -32,6 +32,8 @@ import com.controller.dto.DataFileDTO;
 import com.controller.dto.DataFileOnlyDetailsDTO;
 import com.controller.dto.DataFileOnlyPhotoDTO;
 import com.controller.dto.DataFileOnlyPhotoListDTO;
+import com.controller.dto.detail.SupplyDTO;
+import com.controller.dto.detail.SupplyListDTO;
 import com.controller.dto.filter.FilterDTO;
 import com.controller.dto.filter.FilterGalleryDTO;
 import com.form.FilterForm;
@@ -124,6 +126,23 @@ public class DataFileController {
 		} catch (Exception e) {
  			return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
 		}
-		
+	}
+	@ResponseBody
+	@PostMapping("/supply")
+	//@Cacheable("supply")
+	public ResponseEntity getAverageSupply(@RequestParam(name = "initialdate") String initialDate,@RequestParam(name = "finaldate") String finalDate
+			,@RequestParam(name = "idsbrand") List<Long> idsBrand, @RequestBody(required = false)  FilterForm filter) {
+		try {
+			SupplyListDTO dto = new SupplyListDTO();
+			List<Object[]> datas = dataFileService.getAverageSupply(LocalDateConverter.convertToLocalDate(initialDate) , LocalDateConverter.convertToLocalDate(finalDate)
+					,idsBrand,filter);
+			List<SupplyDTO> dtos = datas.stream().map(element -> new SupplyDTO((String) element[0],(String) element[1], (String) element[2],((BigInteger) element[3]).longValue(),((java.sql.Date) element[4]).toLocalDate(),((BigInteger) element[5]).longValue(),((BigInteger) element[6]).longValue())).collect(Collectors.toList());
+			dto.setCount(dataFileService.getCountAverageSupply(LocalDateConverter.convertToLocalDate(initialDate) , LocalDateConverter.convertToLocalDate(finalDate)
+					,idsBrand,filter));
+			dto.setSupplyList(dtos);
+			return ResponseEntity.status(HttpStatus.OK).body(dto);
+		}catch (Exception e) {
+ 			return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
+		}
 	}
 }
